@@ -11,7 +11,8 @@ OpenWRT应用于西电北校区实现校内网路由器上网
 + **校内网路由上网**
 + **OpenWRT拓展及深入**
 + **资料搜集**
-- - -
+
+---
 
 一、背景说明
 -----------
@@ -71,13 +72,116 @@ OpenWRT应用于西电北校区实现校内网路由器上网
 2. 使用USB-TTL串口小板连接PC USB口与OpenWRT所引出的串口线；
 3. 使用串口助手配合tftpd32软件进行串口刷机。
 
+**附加**，
+
+1. 串口线引出示意图如下所示：
+
+![image-ttl](https://raw.githubusercontent.com/KeepSilenceQP/XidianOpenWRTConfig/master/images/TTL.jpg)
+
+2. 串口小板如下所示：
+
+![image-usb2ttl](https://raw.githubusercontent.com/KeepSilenceQP/XidianOpenWRTConfig/master/images/USB2TTL.jpg)
+
+3. 具体命令参考：
+
+[一般救砖](http://blog.csdn.net/u011582412/article/details/19492983)
+
+[编程器救砖](http://yfrobot.com/thread-2225-1-1.html)
+
+![编程器长这个样子](https://raw.githubusercontent.com/KeepSilenceQP/XidianOpenWRTConfig/master/images/bianchengqi.jpg)
+
 什么？你后悔了？要**刷回原厂固件**，好的，
 
-当你完成了基本配置，可以通过SSH经由putty登陆OpenWRT系统后，就可以看下面的内容了。
+[TP-Link WR703n官网](http://www.tp-link.com.cn/product_225.html)下载相关原厂固件，刷回来即可。
+
+以上内容有些拖沓、冗杂，但是比较全面，实际上，**当你完成了基本配置，可以通过SSH经由putty登陆OpenWRT系统后**，就可以看下面的内容了。
 
 三、针对西电北校区配置说明
 -----------------------
 **如果你只想简单使用一下OpenWRT在西电登录校内网，看这部分说明就可以了。**
+
+1. 在[百度网盘](http://pan.baidu.com/s/1o667WvS)下载软件包，解压后得到三个ipk文件，将其通过WinSCP拷贝到/tmp目录下；
+2. 先安装libpcap库，再安装客户端，最后安装客户端Web界面；
+3. 新增Wan口并配置其为DHCP；
+4. 使用命令登录校内网。
+
+详细说明：
+
+1. 新增Wan口需要将配置文件/etc/config/network进行如下配置：
+
+    	config interface 'loopback'
+    		option ifname 'lo'
+    		option proto 'static'
+    		option ipaddr '127.0.0.1'
+    		option netmask '255.0.0.0'
+    
+    	config interface 'lan'
+    		#option ifname 'eth0' # 注释该行
+    		option type 'bridge'
+    		option proto 'static'
+    		option ipaddr '192.168.1.1'
+    		option netmask '255.255.255.0'
+
+    	# 添加以下行
+    	config interface 'wan'
+    		option proto 'dhcp' # DHCP协议
+    		option ifname 'eth0'
+
+<a name="mac" id="mac">
+
+	option macaddr '00:05:5D:5E:46:43' # 绑定的MAC
+
+</a>
+
+2. 开启无线需要将/etc/config/wireless做如下配置：
+
+    	config wifi-device 'radio0'
+    		option type 'mac80211'
+    		option channel '11'
+    		option macaddr 'ec:17:2f:e3:b4:c8'
+    		option hwmode '11ng'
+    		option htmode 'HT20'
+    		list ht_capab 'SHORT-GI-20'
+    		list ht_capab 'SHORT-GI-40'
+    		list ht_capab 'RX-STBC1'
+    		list ht_capab 'DSSS_CCK-40'
+    		option txpower '27'
+    		option country 'US'
+    
+    	config wifi-iface
+    		option device 'radio0'
+    		option network 'lan'
+    		option mode 'ap'
+    		option ssid 'wifi名'
+    		option encryption '加密方式'
+    		option key '密码'
+    		option hidden '1' # 隐藏wifi名
+
+注意一个地方，[修改MAC地址](#mac)
+
+3. 进行完毕上述配置后，就可以重启路由器，使用无线连接路由。连接路由器成功后，使用putty登录路由器，然后输入如下命令接入校内网：
+
+    	njit-client 账户名 账户密码 网卡(eth0 etc) &(后台登录)
+
+4. 可以配置一个开机自启动来在路由开机后自动联网，内容如下所示：
+
+    	#!/bin/sh /etc/rc.common
+    
+    	START=50
+    
+    	start() {
+    		njit-client 帐号名 密码 网卡 &
+    	}
+    
+    	stop() {
+    		killall njit-client
+    		killall udhcpc
+    	}
+
+将该文件保存到init.d目录下，
+
+    chmod +x 文件名 // 赋予可执行权限
+    ./文件名 enable // 开机自启动
 
 四、拓展
 -------
