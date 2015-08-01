@@ -74,21 +74,33 @@ OpenWRT应用于西电北校区实现校内网路由器上网
 
 **附加**，
 
-1. 串口线引出示意图如下所示：
++ 串口线引出示意图如下所示：
 
 ![image-ttl](https://raw.githubusercontent.com/KeepSilenceQP/XidianOpenWRTConfig/master/images/TTL.jpg)
 
-2. 串口小板如下所示：
++ 串口小板如下所示：
 
 ![image-usb2ttl](https://raw.githubusercontent.com/KeepSilenceQP/XidianOpenWRTConfig/master/images/USB2TTL.jpg)
 
-3. 具体命令参考：
++ 具体命令参考：
 
 [一般救砖](http://blog.csdn.net/u011582412/article/details/19492983)
 
 [编程器救砖](http://yfrobot.com/thread-2225-1-1.html)
 
+编程器如下所示：
+
 ![编程器长这个样子](https://raw.githubusercontent.com/KeepSilenceQP/XidianOpenWRTConfig/master/images/bianchengqi.jpg)
+
++ 当你将TTL引出和USB2TTL小板连接完毕使用PC端串口助手进行下一步工作时，如果发现
+
+1.没有任何显示
+
+检查RX/TX是否接对
+
+2.乱码
+
+重新调整波特率，不一定是115200，我的就不是115200。
 
 什么？你后悔了？要**刷回原厂固件**，好的，
 
